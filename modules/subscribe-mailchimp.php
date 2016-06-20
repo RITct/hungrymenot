@@ -1,55 +1,29 @@
 <?php
 
-// =============================================
-// CONFIGURATIONS
-// =============================================
-
-// Authentication
-$api_key         = '2f0f49b02439d56be9f09a02984e3819-us11'; // Find on your Account Settings > Extras > API Keys
-$list_id         = '9bbfabb6ed'; // Find on your List > Settings
-
-// Validation messages
-$error_messages   = array(
-	'List_AlreadySubscribed' => 'The email you entered is already subscribed.',
-	'Email_NotExists'        => 'The email you entered is invalid.',
-	'else'                   => 'An error occurred.',
-);
-$success_message = 'Success!';
-
-// =============================================
-// BEGIN SUBSCRIBE PROCESS
-// =============================================
-
-// Form's values
+$success_message = 'Success!'; 
 $email = isset( $_REQUEST['email'] ) ? $_REQUEST['email'] : '';
+$servername = "mysql.hostinger.in";
+$username = "u455542552_adf";
+$password = "UnwtZT85h0";
+$dbname = "u455542552_feedb";
 
-// Initiate API object
-require_once( 'class.mailchimp-api.php' );
-$mailchimp = new MailChimp( $api_key );
 
-// Request parameters
-$config  = array(
-	'id'                => $list_id,
-	'email'             => array( 'email' => $email ),
-	'merge_vars'        => NULL,
-	'email_type'        => 'html',
-	'double_optin'      => true,
-	'update_existing'   => false,
-	'replace_interests' => true,
-	'send_welcome'      => false,
-);
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) 
+    die("Connection failed: " . $conn->connect_error);
 
-// Send request
-// http://apidocs.mailchimp.com/api/2.0/lists/subscribe.php
-$result = $mailchimp->call( 'lists/subscribe', $config );
+$sql = "INSERT INTO `mailinglist`(`email`) VALUES (\'".$email."\')";
 
-if ( array_key_exists( 'status', $result ) && $result['status'] == 'error' ) {
-	// If error occurs
-	$result['message'] = array_key_exists( $result['name'], $error_messages ) ? $error_messages[ $result['name'] ] : $error_messages['else'];
-} else {
-	// If success
-	$result['message'] = $success_message;
+$res=$conn->query($sql);
+if($res)
+{
+$result['message'] = $success_message;
 }
+else
+{
+$result['message'] = "Error! try again later! ";
+}
+$conn->close();
 
 // Send output
 if ( ! empty( $_REQUEST[ 'ajax' ] ) ) {
